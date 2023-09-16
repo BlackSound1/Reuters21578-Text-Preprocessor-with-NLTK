@@ -1,3 +1,4 @@
+from pathlib import Path
 from re import sub
 from typing import List
 
@@ -52,6 +53,6 @@ def textualize(article: Tag, article_num: int) -> str:
     text = sub(r'\x03|\x02', '', text)
 
     # Write this semi-cleaned text to file
-    write_to_file(article_num, "1. Initial-text", text)
+    write_to_file(Path(f"article{article_num}/1. Initial-text"), text)
 
     return text

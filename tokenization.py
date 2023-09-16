@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List
 from typing_extensions import Annotated
 from typer import rich_utils
@@ -19,40 +20,48 @@ tokenizer = typer.Typer(name="Tokenizer", short_help="A Module for tokenizing a 
 
 @tokenizer.command(name="tokenize", short_help="Tokenize the given text.", rich_help_panel="COMMANDS",
                    options_metavar='[--help]', no_args_is_help=True, epilog="Thanks for using my tokenizer! :boom:",
-                   help="""
-                   Tokenizes the given text using the NLTK `word_tokenize()` method.
+                   help="""Tokenizes the given text using the NLTK `word_tokenize()` method.
                    
                    [not dim]
                    Takes the given text as a string and tokenizes it according to the NLTK `word_tokenize()` method.
+                   It is possible to specify a custom file to save results to. Files should always look like: [bold yellow]<nested/directories/file.txt>[/].
+                   Regardless of the nesting of directories and filename you specify, results will always be saved to the [bold yellow]output/[/] directory.
                    
-                   [bold yellow]Example Usage[/]:
+                   For instance, running: 
+                   
+                   python tokenization.py "This is some text" --file-path my_article/tokens.txt
+                   
+                   will save to [bold yellow]output/my_article/tokens.txt[/]
+                   
+                   [bold yellow]Example Usages[/]:
                    python tokenization.py "This is some text"
+                   python tokenization.py "This is some text" --file-path my_article/tokens.txt
                    """)
 def tokenize(
         text: Annotated[str, typer.Argument(help="The text to tokenize.", show_default=False)],
         article_num: Annotated[int, typer.Option(help="Which article in the corpus this is. Used in logging.",
                                                  hidden=True)] = 0,
-        pipeline: Annotated[bool, typer.Option(help="Whether this function is being run in the normal pipeline,"
-                                                    "or as a standalone CLI call.", hidden=True)] = False
+        file_path: Annotated[Path, typer.Option(help="Specify an optional file to save this result to.")] = Path(
+            'custom_article/1. Tokenizer-output')
 ) -> List[str]:
     """
     Tokenize the article text
 
     :param text: The article text to tokenize
     :param article_num: Which article this is
-    :param pipeline: Whether this function is being run via the pipeline, or as a script
+    :param file_path: A file path to save the file to. Must take form of directory/file.txt
     :return: A list of strings representing the tokens of the article
     """
 
     # Tokenize the given article text string
     TOKENIZED: List[str] = word_tokenize(text)
 
-    if pipeline:
-        print(f"Article {article_num}: writing to file output/article{article_num}/Tokenizer-output.txt")
-        write_to_file(article_num, "2. Tokenizer-output", TOKENIZED)
+    if not file_path:
+        print(f"Article {article_num}: writing to file output/article{article_num}/2. Tokenizer-output.txt")
+        write_to_file(Path(f"article{article_num}/2. Tokenizer-output.txt"), TOKENIZED)
     else:
-        print(f"Custom article: writing to file output/custom_article/Tokenizer-output.txt")
-        write_to_file(article_num, "1. Tokenizer-output", TOKENIZED, custom=True)
+        print(f"Custom article: writing to file output/{file_path}")
+        write_to_file(file_path, TOKENIZED)
 
     return TOKENIZED
 

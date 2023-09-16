@@ -30,9 +30,20 @@ remover = typer.Typer(name="Stopword-Remover", short_help="A Module for removing
                  a given list of token strings, and eliminates them. It's even possible to specify a custom stopwords
                  file.
                  
+                 It is possible to specify a custom file to save results to. Files should always look like: [bold yellow]<nested/directories/file.txt>[/].
+                 Regardless of the nesting of directories and filename you specify, results will always be saved to the [bold yellow]output/[/] directory.
+                   
+                 For instance, running: 
+                   
+                 python lowercase.py where are you at for once --file-path my_article/removed.txt
+                   
+                 will save to [bold yellow]output/my_article/removed.txt[/]
+                 
                  [bold yellow]Example Usages[/]:
                  python handle_stopwords.py where are you at for once
-                 python handle_stopwords.py --stopwords-file my_file.txt these are other tokens perhaps with stopwords
+                 python handle_stopwords.py these are other tokens perhaps with stopwords --stopwords-file my_file.txt
+                 python handle_stopwords.py where are you at for once --file-path my_article/removed.txt
+                 python handle_stopwords.py where are you at for once --file-path my_article/removed.txt --stopwords-file my_file.txt
                  """)
 def remove_stopwords(
         tokens: Annotated[List[str], typer.Argument(help="The tokens to use.", show_default=False)],
@@ -40,16 +51,17 @@ def remove_stopwords(
                                                            hidden=True)] = 0,
         stopwords_file: Annotated[Optional[Path], typer.Option(help="The file to find stopwords in.")] = Path(
             "Stopwords-used-for-output.txt"),
-        pipeline: Annotated[bool, typer.Option(help='Whether this function is being run in the normal pipeline, '
-                                                    'or as a standalone CLI call.', hidden=True)] = False
+        file_path: Annotated[Path, typer.Option(help="Specify an optional file to save this result to.")] = Path(
+            'custom_article/4. No-stopword-output.txt')
+
 ) -> None:
     """
     As the final step, remove all words from the list of tokens that are stopwords
 
     :param tokens: The list of tokens to filter stopwords out of
     :param article_num: Which article this is
-    :param pipeline: Whether this function is being run via the pipeline, or as a script
     :param stopwords_file: The file where stopwords are defined
+    :param file_path: A file path to save the file to. Must take form of directory/file.txt
     """
 
     # Read the given stopwords file and create a list of the stopwords within
@@ -59,12 +71,12 @@ def remove_stopwords(
     # Filter out the stopwords
     FINAL: List[str] = [word for word in tokens if word not in STOPWORDS]
 
-    if pipeline:
-        print(f"Article {article_num}: writing to file output/article{article_num}/No-stopword-output.txt")
-        write_to_file(article_num, "5. No-stopword-output", FINAL)
+    if not file_path:
+        print(f"Article {article_num}: writing to file output/article{article_num}/5. No-stopword-output.txt")
+        write_to_file(Path(f"article{article_num}/5. No-stopword-output.txt"), FINAL)
     else:
-        print(f"Custom article: writing to file output/custom_article/No-stopword-output.txt")
-        write_to_file(article_num, "4. No-stopword-output", FINAL, custom=True)
+        print(f"Custom article: writing to file output/{file_path}")
+        write_to_file(file_path, FINAL)
 
 
 if __name__ == '__main__':
