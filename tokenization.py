@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import List, Optional
 from typing_extensions import Annotated
 from typer import rich_utils
+import rich
 
 from nltk import word_tokenize
 import typer
@@ -64,20 +65,22 @@ def tokenize(
 
     # If this is running as the pipeline, this will be the 2nd file written
     if pipeline:
-        print(f"Article {article_num}: writing to file output/article{article_num}/2. Tokenizer-output.txt")
-        write_to_file(Path(f"article{article_num}/2. Tokenizer-output.txt"), TOKENIZED)
+        file_print = Path(f'article{article_num}/2. Tokenizer-output.txt')
+        rich.print(f"\twriting to file \"{'output' / file_print}\"")
+        write_to_file(file_print, TOKENIZED)
 
     # If this is not running as the pipeline, this will be the 1st file written
     else:
         # If a file is specified, write to it
         if file_path:
-            print(f"Custom article: writing to file output/{file_path}")
+            rich.print(f"Custom article: writing to file \"{'output' / file_path}\"")
             write_to_file(file_path, TOKENIZED)
 
         # If not, write to default location
         else:
-            print("Custom article: writing to file output/custom_article/1. Tokenizer-output.txt")
-            write_to_file(Path("custom_article/1. Tokenizer-output.txt"), TOKENIZED)
+            file_print = Path("custom_article/1. Tokenizer-output.txt")
+            rich.print(f"Custom article: writing to file \"{'output' / file_print}\"")
+            write_to_file(file_print, TOKENIZED)
 
     return TOKENIZED
 

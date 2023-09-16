@@ -1,5 +1,4 @@
-from pathlib import Path
-
+import rich
 import typer
 from typer import rich_utils
 
@@ -39,6 +38,7 @@ def pipeline():
     ALL_ARTICLES = get_five_articles()
 
     for i, article in enumerate(ALL_ARTICLES, start=1):
+        rich.print(f"Article [bold green]{i}[/]:")
         this_article = textualize(article, i)
         tokenized = tokenize(this_article, i, pipeline=True)
         lower_cased = lowercase(tokenized, i, pipeline=True)

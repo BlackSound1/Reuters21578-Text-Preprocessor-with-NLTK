@@ -1,10 +1,11 @@
 from pathlib import Path
 from typing import List, Optional
-
-from typer import rich_utils
 from typing_extensions import Annotated
 
+import rich
 import typer
+from typer import rich_utils
+
 from nltk import PorterStemmer
 
 from file_writing import write_to_file
@@ -69,20 +70,22 @@ def stem(
 
     # If this is running as the pipeline, this will be the 4th file written
     if pipeline:
-        print(f"Article {article_num}: writing to file output/article{article_num}/4. Stemmed-output.txt")
-        write_to_file(Path(f"article{article_num}/4. Stemmed-output.txt"), STEMMED)
+        file_print = Path(f"article{article_num}/4. Stemmed-output.txt")
+        rich.print(f"\twriting to file \"{'output' / file_print}\"")
+        write_to_file(file_print, STEMMED)
 
     # If this is not running as the pipeline, this will be the 3rd file written
     else:
         # If a file is specified, write to it
         if file_path:
-            print(f"Custom article: writing to file output/{file_path}")
+            rich.print(f"Custom article: writing to file \"{'output' / file_path}\"")
             write_to_file(file_path, STEMMED)
 
         # If not, write to default location
         else:
-            print("Custom article: writing to file output/custom_article/3. Stemmed-output.txt")
-            write_to_file(Path("custom_article/3. Stemmed-output.txt"), STEMMED)
+            file_print = Path("custom_article/3. Stemmed-output.txt")
+            rich.print(f"Custom article: writing to file \"{'output' / file_print}\"")
+            write_to_file(file_print, STEMMED)
 
     return STEMMED
 
