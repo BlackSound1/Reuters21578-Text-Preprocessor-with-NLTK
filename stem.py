@@ -1,12 +1,38 @@
-from typing import List
-from sys import argv
+from typing import List, Optional
 
+from typer import rich_utils
+from typing_extensions import Annotated
+
+import typer
 from nltk import PorterStemmer
 
 from file_writing import write_to_file
 
+# Define certain colors and styles
+rich_utils.OPTIONS_PANEL_TITLE = "[not dim]Options"
+rich_utils.ARGUMENTS_PANEL_TITLE = "[not dim]Arguments"
+rich_utils.STYLE_REQUIRED_LONG = 'not dim red'
+rich_utils.STYLE_OPTION_DEFAULT = 'not dim white'
 
-def stem(tokens: List[str], article_num, pipeline: bool = True) -> List[str]:
+stemmer = typer.Typer(name="Stemmer", short_help="A Module for stemming all tokens in a given list.",
+                      add_completion=False, rich_markup_mode='rich', no_args_is_help=True)
+
+
+@stemmer.command(name='stem', short_help='Stems all tokens according to the Porter stemmer.',
+                 rich_help_panel='COMMANDS', no_args_is_help=True,
+                 options_metavar='[--pipeline | --help]', help="""
+                 Stems all tokens according to the Porter stemmer.
+                 
+                 [not dim]
+                 hey
+                 """)
+def stem(
+        tokens: Annotated[List[str], typer.Argument(help="The tokens to use.", show_default=False)],
+        article_num: Annotated[Optional[int], typer.Option(help="Declare which article number this should be.",
+                                                           hidden=True)] = 0,
+        pipeline: Annotated[bool, typer.Option(help='Whether this function is being run in the normal pipeline, '
+                                                    'or as a standalone CLI call.')] = True
+) -> List[str]:
     """
     Stem the given list of tokens for an article with the Porter stemmer
 
@@ -33,4 +59,4 @@ def stem(tokens: List[str], article_num, pipeline: bool = True) -> List[str]:
 
 
 if __name__ == '__main__':
-    stem(tokens=argv[1:], article_num=0, pipeline=False)
+    stemmer()

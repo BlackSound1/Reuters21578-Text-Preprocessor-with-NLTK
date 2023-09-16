@@ -1,10 +1,36 @@
-from typing import List
-from sys import argv
+from typing import List, Optional
+
+from typer import rich_utils
+from typing_extensions import Annotated
+
+import typer
 
 from file_writing import write_to_file
 
+# Define certain colors and styles
+rich_utils.OPTIONS_PANEL_TITLE = "[not dim]Options"
+rich_utils.ARGUMENTS_PANEL_TITLE = "[not dim]Arguments"
+rich_utils.STYLE_REQUIRED_LONG = 'not dim red'
+rich_utils.STYLE_OPTION_DEFAULT = 'not dim white'
 
-def lowercase(tokens: List[str], article_num: int, pipeline: bool = True) -> List[str]:
+lowercaser = typer.Typer(name='Lowercaser', short_help="A Module for making all tokens in a text lowercase.",
+                         add_completion=False, rich_markup_mode='rich', no_args_is_help=True)
+
+
+@lowercaser.command(name='lowercase', short_help="Makes all tokens lowercase.", rich_help_panel='COMMANDS',
+                    options_metavar='[--pipeline | --help]', no_args_is_help=True, help="""
+                    Makes all tokens lowercase.
+                    
+                    [not dim]
+                    hey
+                    """)
+def lowercase(
+        tokens: Annotated[List[str], typer.Argument(help="The tokens to use.", show_default=False)],
+        article_num: Annotated[Optional[int], typer.Option(help="Declare which article number this should be.",
+                                                           hidden=True)] = 0,
+        pipeline: Annotated[bool, typer.Option(help='Whether this function is being run in the normal pipeline, '
+                                                    'or as a standalone CLI call.')] = True
+) -> List[str]:
     """
     Turn the tokens of the article all lowercase
 
@@ -28,4 +54,4 @@ def lowercase(tokens: List[str], article_num: int, pipeline: bool = True) -> Lis
 
 
 if __name__ == '__main__':
-    lowercase(tokens=argv[1:], article_num=0, pipeline=False)
+    lowercaser()

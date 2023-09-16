@@ -1,10 +1,39 @@
-from typing import List
-from sys import argv
+from typing import List, Optional
+from pathlib import Path
+
+from typer import rich_utils
+from typing_extensions import Annotated
+
+import typer
 
 from file_writing import write_to_file
 
+# Define certain colors and styles
+rich_utils.OPTIONS_PANEL_TITLE = "[not dim]Options"
+rich_utils.ARGUMENTS_PANEL_TITLE = "[not dim]Arguments"
+rich_utils.STYLE_REQUIRED_LONG = 'not dim red'
+rich_utils.STYLE_OPTION_DEFAULT = 'not dim white'
 
-def remove_stopwords(tokens: List[str], article_num: int, stopwords_file: str, pipeline: bool = True):
+remover = typer.Typer(name="Stopword-Remover", short_help="A Module for removing stopwords from a list of tokens.",
+                      add_completion=False, rich_markup_mode='rich', no_args_is_help=True)
+
+
+@remover.command(name='remove_stopwords', short_help="Removes stopwords from a given list of tokens.",
+                 rich_help_panel='COMMANDS', options_metavar='[--pipeline | --help]', no_args_is_help=True, help="""
+                 Removes stopwords from a given list of tokens.
+                 
+                 [not dim]
+                 Hey
+                 """)
+def remove_stopwords(
+        tokens: Annotated[List[str], typer.Argument(help="The tokens to use.", show_default=False)],
+        article_num: Annotated[Optional[int], typer.Option(help="Declare which article number this should be.",
+                                                           hidden=True)] = 0,
+        stopwords_file: Annotated[Optional[Path], typer.Option(help="The file to find stopwords in")] = Path(
+            "Stopwords-used-for-output.txt"),
+        pipeline: Annotated[bool, typer.Option(help='Whether this function is being run in the normal pipeline, '
+                                                    'or as a standalone CLI call.')] = True
+) -> None:
     """
     As the final step, remove all words from the list of tokens that are stopwords
 
@@ -30,4 +59,4 @@ def remove_stopwords(tokens: List[str], article_num: int, stopwords_file: str, p
 
 
 if __name__ == '__main__':
-    remove_stopwords(tokens=argv[1:], article_num=0, stopwords_file="Stopwords-used-for-output.txt", pipeline=False)
+    remover()
