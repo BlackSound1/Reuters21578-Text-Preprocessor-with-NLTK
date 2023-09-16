@@ -53,6 +53,7 @@ def textualize(article: Tag, article_num: int) -> str:
     text = sub(r'\x03|\x02', '', text)
 
     # Write this semi-cleaned text to file
-    write_to_file(Path(f"article{article_num}/1. Initial-text"), text)
+    print(f"Article {article_num}: writing to file output/article{article_num}/1. Initial.txt")
+    write_to_file(Path(f"article{article_num}/1. Initial-text.txt"), text)
 
     return text

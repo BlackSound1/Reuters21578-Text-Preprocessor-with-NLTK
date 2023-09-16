@@ -37,14 +37,13 @@ def pipeline():
     """Run each step of the pipeline automatically"""
 
     ALL_ARTICLES = get_five_articles()
-    STOPWORDS_FILE = Path("Stopwords-used-for-output.txt")
 
     for i, article in enumerate(ALL_ARTICLES, start=1):
         this_article = textualize(article, i)
-        tokenized = tokenize(this_article, i)
-        lower_cased = lowercase(tokenized, i)
-        stemmed = stem(lower_cased, i)
-        remove_stopwords(stemmed, i, STOPWORDS_FILE)
+        tokenized = tokenize(this_article, i, pipeline=True)
+        lower_cased = lowercase(tokenized, i, pipeline=True)
+        stemmed = stem(lower_cased, i, pipeline=True)
+        remove_stopwords(stemmed, i, pipeline=True)
 
 
 if __name__ == '__main__':

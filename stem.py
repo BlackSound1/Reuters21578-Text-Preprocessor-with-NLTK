@@ -15,13 +15,17 @@ rich_utils.ARGUMENTS_PANEL_TITLE = "[not dim]Arguments"
 rich_utils.STYLE_REQUIRED_LONG = 'not dim red'
 rich_utils.STYLE_OPTION_DEFAULT = 'not dim white'
 
-stemmer = typer.Typer(name="Stemmer", short_help="A Module for stemming all tokens in a given list.",
-                      add_completion=False, rich_markup_mode='rich', no_args_is_help=True)
+# Define stemmer app
+stemmer = typer.Typer(add_completion=False, rich_markup_mode='rich', no_args_is_help=True)
+
+# Define certain app arguments and options. Makes later code cleaner
+ARTICLE_NUM_OPTION = typer.Option(help="Which article in the corpus this is. Used in logging.", hidden=True)
+FILE_OPTION = typer.Option("--file", "-f", help="Specify an optional file to save this result to.")
 
 
-@stemmer.command(name='stem', short_help='Stems all tokens according to the Porter stemmer.',
-                 rich_help_panel='COMMANDS', no_args_is_help=True, epilog="Thanks for using my stemmer! :boom:",
-                 options_metavar='[--help]', help="""Stems all tokens according to the Porter stemmer.
+@stemmer.command(short_help='Stems all tokens according to the Porter stemmer.', no_args_is_help=True,
+                 epilog="Thanks for using my stemmer! :boom:", options_metavar='[--help] [--file <dir/file.txt>]',
+                 help="""Stems all tokens according to the Porter stemmer.
                  
                  [not dim]
                  The arguments to this command are a list of tokens. These tokens are all stemmed using
@@ -32,21 +36,20 @@ stemmer = typer.Typer(name="Stemmer", short_help="A Module for stemming all toke
                    
                  For instance, running: 
                    
-                 python stem.py interesting tokens are sometimes longer than others --file-path my_article/stem.txt
+                 python stem.py interesting tokens are sometimes longer than others --file my_article/stem.txt
                    
-                 will save to [bold yellow]output/my_article/stem.txt[/]
+                 will save to [bold yellow]output/my_article/stem.txt[/]. If no file is specified, it will save to
+                 [bold yellow]output/custom_article/3. Stemmed-output.txt[/]
                  
                  [bold yellow]Example Usages[/]:
                  python stem.py interesting tokens are sometimes longer than others
-                 python stem.py interesting tokens are sometimes longer than others --file-path my_article/stem.txt
+                 python stem.py interesting tokens are sometimes longer than others --file my_article/stem.txt
                  """)
 def stem(
         tokens: Annotated[List[str], typer.Argument(help="The tokens to use.", show_default=False)],
-        article_num: Annotated[Optional[int], typer.Option(help="Declare which article number this should be.",
-                                                           hidden=True)] = 0,
-        file_path: Annotated[Path, typer.Option(help="Specify an optional file to save this result to.")] = Path(
-            'custom_article/3. Stemmed-output.txt')
-
+        article_num: Annotated[Optional[int], ARTICLE_NUM_OPTION] = 0,
+        file_path: Annotated[Optional[Path], FILE_OPTION] = None,
+        pipeline: Annotated[bool, typer.Option(hidden=True)] = False
 ) -> List[str]:
     """
     Stem the given list of tokens for an article with the Porter stemmer
@@ -54,6 +57,7 @@ def stem(
     :param tokens: The list of tokens to stem
     :param article_num: Which article this is
     :param file_path: A file path to save the file to. Must take form of directory/file.txt
+    :param pipeline: Whether this command is running as part of the pipeline. Changes file writing
     :return: The stemmed version of the list of tokens, stemmed using the Porter stemmer
     """
 
@@ -63,12 +67,22 @@ def stem(
     # Stem each token in the given list of tokens with the Porter stemmer
     STEMMED: List[str] = [STEMMER.stem(token) for token in tokens]
 
-    if not file_path:
+    # If this is running as the pipeline, this will be the 4th file written
+    if pipeline:
         print(f"Article {article_num}: writing to file output/article{article_num}/4. Stemmed-output.txt")
         write_to_file(Path(f"article{article_num}/4. Stemmed-output.txt"), STEMMED)
+
+    # If this is not running as the pipeline, this will be the 3rd file written
     else:
-        print(f"Custom article: writing to file output/{file_path}")
-        write_to_file(file_path, STEMMED)
+        # If a file is specified, write to it
+        if file_path:
+            print(f"Custom article: writing to file output/{file_path}")
+            write_to_file(file_path, STEMMED)
+
+        # If not, write to default location
+        else:
+            print("Custom article: writing to file output/custom_article/3. Stemmed-output.txt")
+            write_to_file(Path("custom_article/3. Stemmed-output.txt"), STEMMED)
 
     return STEMMED
 

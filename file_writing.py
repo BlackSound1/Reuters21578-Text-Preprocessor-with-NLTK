@@ -3,6 +3,17 @@ from pathlib import Path
 
 
 def write_to_file(file_path: Path, what_to_write: Union[list, str]) -> None:
+    """
+    Write the given content to the given file.
+
+    You can specify any number of nested directories, as long as a filename is specified at the end.
+
+    File paths will have `output/` prepended, thus saving to the `output/` folder. So a given file name of
+    `my_folder/my_subfolder/file.txt` will save as `output/my_folder/my_subfolder/file.txt`
+
+    :param file_path: Where to write to. Always writes in the `output/` directory
+    :param what_to_write: The content to write. Can be a string or list of strings
+    """
 
     FILENAME = "output" / file_path
 

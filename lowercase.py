@@ -14,13 +14,18 @@ rich_utils.ARGUMENTS_PANEL_TITLE = "[not dim]Arguments"
 rich_utils.STYLE_REQUIRED_LONG = 'not dim red'
 rich_utils.STYLE_OPTION_DEFAULT = 'not dim white'
 
-lowercaser = typer.Typer(name='Lowercaser', short_help="A Module for making all tokens in a text lowercase.",
-                         add_completion=False, rich_markup_mode='rich', no_args_is_help=True)
+# Define lowercaser app
+lowercaser = typer.Typer(add_completion=False, rich_markup_mode='rich', no_args_is_help=True)
+
+# Define certain app arguments and options. Makes later code cleaner
+TOKENS_ARGUMENT = typer.Argument(help="The tokens to use, written as 1 or more space-separated strings.", show_default=False)
+ARTICLE_NUM_OPTION = typer.Option(help="Which article in the corpus this is. Used in logging.", hidden=True)
+FILE_OPTION = typer.Option("--file", "-f", help="Specify an optional file to save this result to.")
 
 
-@lowercaser.command(name='lowercase', short_help="Makes all tokens lowercase.", rich_help_panel='COMMANDS',
-                    options_metavar='[--help]', no_args_is_help=True,
-                    epilog="Thanks for using my token lower-caser! :boom:", help="""Makes all tokens lowercase.
+@lowercaser.command(short_help="Makes all tokens lowercase.", epilog="Thanks for using my token lower-caser! :boom:",
+                    options_metavar='[--help] [--file <dir/file.txt>]', no_args_is_help=True,
+                    help="""Makes all tokens lowercase.
                     
                     [not dim]
                     The arguments to this command are a list of tokens. These tokens are all made lowercase
@@ -30,20 +35,20 @@ lowercaser = typer.Typer(name='Lowercaser', short_help="A Module for making all 
                    
                     For instance, running: 
                    
-                    python lowercase.py THESE ARE SOME TOKENS --file-path my_article/lowercase.txt
+                    python lowercase.py THESE ARE SOME TOKENS --file my_article/lowercase.txt
                    
-                    will save to [bold yellow]output/my_article/lowercase.txt[/]
+                    will save to [bold yellow]output/my_article/lowercase.txt[/]. If no file is specified, it will save to
+                    [bold yellow]output/custom_article/2. Lowercased-output.txt[/]
                    
                     [bold yellow]Example Usages[/]:
                     python lowercase.py THESE ARE SOME TOKENS
-                    python lowercase.py THESE ARE SOME TOKENS --file-path my_article/lowercase.txt
+                    python lowercase.py THESE ARE SOME TOKENS --file my_article/lowercase.txt
                     """)
 def lowercase(
-        tokens: Annotated[List[str], typer.Argument(help="The tokens to use.", show_default=False)],
-        article_num: Annotated[Optional[int], typer.Option(help="Declare which article number this should be.",
-                                                           hidden=True)] = 0,
-        file_path: Annotated[Path, typer.Option(help="Specify an optional file to save this result to.")] = Path(
-            'custom_article/2. Lowercased-output.txt')
+        tokens: Annotated[List[str], TOKENS_ARGUMENT],
+        article_num: Annotated[Optional[int], ARTICLE_NUM_OPTION] = 0,
+        file_path: Annotated[Optional[Path], FILE_OPTION] = None,
+        pipeline: Annotated[bool, typer.Option(hidden=True)] = False
 ) -> List[str]:
     """
     Turn the tokens of the article all lowercase
@@ -51,18 +56,29 @@ def lowercase(
     :param tokens: The list of tokens to make lowercase
     :param article_num: Which article this is
     :param file_path: A file path to save the file to. Must take form of directory/file.txt
+    :param pipeline: Whether this command is running as part of the pipeline. Changes file writing
     :return: The list of tokens, all lowercase
     """
 
     # Create the lowercase version of the input tokens list
     LOWER_CASED: List[str] = [token.lower() for token in tokens]
 
-    if not file_path:
+    # If this is running as the pipeline, this will be the 3rd file written
+    if pipeline:
         print(f"Article {article_num}: writing to file output/article{article_num}/3. Lowercased-output.txt")
         write_to_file(Path(f"article{article_num}/3. Lowercased-output.txt"), LOWER_CASED)
+
+    # If this is not running as the pipeline, this will be the 2nd file written
     else:
-        print(f"Custom article: writing to file output/{file_path}")
-        write_to_file(file_path, LOWER_CASED)
+        # If a file is specified, write to it
+        if file_path:
+            print(f"Custom article: writing to file output/{file_path}")
+            write_to_file(file_path, LOWER_CASED)
+
+        # If not, write to default location
+        else:
+            print("Custom article: writing to file output/custom_article/2. Lowercased-output.txt")
+            write_to_file(Path("custom_article/2. Lowercased-output.txt"), LOWER_CASED)
 
     return LOWER_CASED
 
