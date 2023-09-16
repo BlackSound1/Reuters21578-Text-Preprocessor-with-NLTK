@@ -18,18 +18,22 @@ tokenizer = typer.Typer(name="Tokenizer", short_help="A Module for tokenizing a 
 
 
 @tokenizer.command(name="tokenize", short_help="Tokenize the given text.", rich_help_panel="COMMANDS",
-                   options_metavar='[--pipeline | --help]', no_args_is_help=True, help="""
-                   Tokenizes the given text using the NLTK `word_tokenize` method.
+                   options_metavar='[--help]', no_args_is_help=True, epilog="Thanks for using my tokenizer! :boom:",
+                   help="""
+                   Tokenizes the given text using the NLTK `word_tokenize()` method.
                    
                    [not dim]
-                   Takes the given text as string and tokenizes it according to the NLTK `word_tokenize` method.
+                   Takes the given text as a string and tokenizes it according to the NLTK `word_tokenize()` method.
+                   
+                   [bold yellow]Example Usage[/]:
+                   python tokenization.py "This is some text"
                    """)
 def tokenize(
         text: Annotated[str, typer.Argument(help="The text to tokenize.", show_default=False)],
         article_num: Annotated[int, typer.Option(help="Which article in the corpus this is. Used in logging.",
                                                  hidden=True)] = 0,
         pipeline: Annotated[bool, typer.Option(help="Whether this function is being run in the normal pipeline,"
-                                                    "or as a standalone CLI call.")] = True
+                                                    "or as a standalone CLI call.", hidden=True)] = False
 ) -> List[str]:
     """
     Tokenize the article text

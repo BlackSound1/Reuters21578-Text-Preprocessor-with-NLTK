@@ -19,20 +19,29 @@ remover = typer.Typer(name="Stopword-Remover", short_help="A Module for removing
 
 
 @remover.command(name='remove_stopwords', short_help="Removes stopwords from a given list of tokens.",
-                 rich_help_panel='COMMANDS', options_metavar='[--pipeline | --help]', no_args_is_help=True, help="""
+                 rich_help_panel='COMMANDS', options_metavar='[--help]', no_args_is_help=True,
+                 epilog="Thanks for using my stopwords-remover! :boom:",
+                 help="""
                  Removes stopwords from a given list of tokens.
                  
                  [not dim]
-                 Hey
+                 Stopwords are extremely common words that can perhaps be ignored when doing NLP tasks, because they
+                 don't differentiate texts from each other. This command reads a file of stopwords to eliminate from
+                 a given list of token strings, and eliminates them. It's even possible to specify a custom stopwords
+                 file.
+                 
+                 [bold yellow]Example Usages[/]:
+                 python handle_stopwords.py where are you at for once
+                 python handle_stopwords.py --stopwords-file my_file.txt these are other tokens perhaps with stopwords
                  """)
 def remove_stopwords(
         tokens: Annotated[List[str], typer.Argument(help="The tokens to use.", show_default=False)],
         article_num: Annotated[Optional[int], typer.Option(help="Declare which article number this should be.",
                                                            hidden=True)] = 0,
-        stopwords_file: Annotated[Optional[Path], typer.Option(help="The file to find stopwords in")] = Path(
+        stopwords_file: Annotated[Optional[Path], typer.Option(help="The file to find stopwords in.")] = Path(
             "Stopwords-used-for-output.txt"),
         pipeline: Annotated[bool, typer.Option(help='Whether this function is being run in the normal pipeline, '
-                                                    'or as a standalone CLI call.')] = True
+                                                    'or as a standalone CLI call.', hidden=True)] = False
 ) -> None:
     """
     As the final step, remove all words from the list of tokens that are stopwords

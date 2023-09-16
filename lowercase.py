@@ -18,18 +18,22 @@ lowercaser = typer.Typer(name='Lowercaser', short_help="A Module for making all 
 
 
 @lowercaser.command(name='lowercase', short_help="Makes all tokens lowercase.", rich_help_panel='COMMANDS',
-                    options_metavar='[--pipeline | --help]', no_args_is_help=True, help="""
+                    options_metavar='[--help]', no_args_is_help=True,
+                    epilog="Thanks for using my token lower-caser! :boom:", help="""
                     Makes all tokens lowercase.
                     
                     [not dim]
-                    hey
+                    The arguments to this command are a list of tokens. These tokens are all made lowercase
+                    
+                    [bold yellow]Example Usage[/]:
+                    python lowercase.py THESE ARE SOME TOKENS
                     """)
 def lowercase(
         tokens: Annotated[List[str], typer.Argument(help="The tokens to use.", show_default=False)],
         article_num: Annotated[Optional[int], typer.Option(help="Declare which article number this should be.",
                                                            hidden=True)] = 0,
         pipeline: Annotated[bool, typer.Option(help='Whether this function is being run in the normal pipeline, '
-                                                    'or as a standalone CLI call.')] = True
+                                                    'or as a standalone CLI call.', hidden=True)] = False
 ) -> List[str]:
     """
     Turn the tokens of the article all lowercase

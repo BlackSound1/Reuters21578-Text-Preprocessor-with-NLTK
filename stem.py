@@ -19,19 +19,23 @@ stemmer = typer.Typer(name="Stemmer", short_help="A Module for stemming all toke
 
 
 @stemmer.command(name='stem', short_help='Stems all tokens according to the Porter stemmer.',
-                 rich_help_panel='COMMANDS', no_args_is_help=True,
-                 options_metavar='[--pipeline | --help]', help="""
+                 rich_help_panel='COMMANDS', no_args_is_help=True, epilog="Thanks for using my stemmer! :boom:",
+                 options_metavar='[--help]', help="""
                  Stems all tokens according to the Porter stemmer.
                  
                  [not dim]
-                 hey
+                 The arguments to this command are a list of tokens. These tokens are all stemmed using
+                 NLTKs built-in Porter stemmer.
+                 
+                 [bold yellow]Example Usage[/]:
+                 python stem.py interesting tokens are sometimes longer than others
                  """)
 def stem(
         tokens: Annotated[List[str], typer.Argument(help="The tokens to use.", show_default=False)],
         article_num: Annotated[Optional[int], typer.Option(help="Declare which article number this should be.",
                                                            hidden=True)] = 0,
         pipeline: Annotated[bool, typer.Option(help='Whether this function is being run in the normal pipeline, '
-                                                    'or as a standalone CLI call.')] = True
+                                                    'or as a standalone CLI call.', hidden=True)] = False
 ) -> List[str]:
     """
     Stem the given list of tokens for an article with the Porter stemmer

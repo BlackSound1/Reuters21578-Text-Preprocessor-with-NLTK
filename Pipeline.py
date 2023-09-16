@@ -29,6 +29,9 @@ app = typer.Typer(name="Reuters Data Pipeline", rich_markup_mode='rich', no_args
              3. Lowercase each token for each article
              4. Stem each token for each article
              5. Remove stopwords for each article
+             
+             [bold yellow]Example Usage[/]:
+             python Pipeline.py
              """)
 def pipeline():
     """Run each step of the pipeline automatically"""
@@ -38,10 +41,10 @@ def pipeline():
 
     for i, article in enumerate(ALL_ARTICLES, start=1):
         this_article = textualize(article, i)
-        tokenized = tokenize(this_article, i)
-        lower_cased = lowercase(tokenized, i)
-        stemmed = stem(lower_cased, i)
-        remove_stopwords(stemmed, i, STOPWORDS_FILE)
+        tokenized = tokenize(this_article, i, pipeline=True)
+        lower_cased = lowercase(tokenized, i, pipeline=True)
+        stemmed = stem(lower_cased, i, pipeline=True)
+        remove_stopwords(stemmed, i, STOPWORDS_FILE, pipeline=True)
 
 
 if __name__ == '__main__':
