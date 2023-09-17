@@ -73,14 +73,17 @@ def tokenize(
     else:
         # If a file is specified, write to it
         if file_path:
-            rich.print(f"Custom article: writing to file \"{'output' / file_path}\"")
+            rich.print(f"\nCustom article: writing to file \"{'output' / file_path}\"")
             write_to_file(file_path, TOKENIZED)
 
         # If not, write to default location
         else:
             file_print = Path("custom_article/1. Tokenizer-output.txt")
-            rich.print(f"Custom article: writing to file \"{'output' / file_print}\"")
+            rich.print(f"\nCustom article: writing to file \"{'output' / file_print}\"")
             write_to_file(file_print, TOKENIZED)
+
+        # When not in pipeline, print output to screen
+        rich.print(f"\n[bold blue]Output:[/]\n{' '.join(t for t in TOKENIZED)}")
 
     return TOKENIZED
 

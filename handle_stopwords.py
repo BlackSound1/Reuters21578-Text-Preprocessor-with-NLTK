@@ -68,6 +68,11 @@ def remove_stopwords(
     :param file_path: A file path to save the file to. Must take form of directory/file.txt
     """
 
+    # Ensure the stopwords file actually exists before trying to read from it. If it doesn't, cleanly exit the app
+    if not stopwords_file.is_file():
+        rich.print(f"\n[red bold]The stopwords file you specified:[/] \"{stopwords_file}\"[red bold], does not exist")
+        raise typer.Exit(1)
+
     # Read the given stopwords file and create a list of the stopwords within
     with open(stopwords_file, "r") as file:
         STOPWORDS: List[str] = [word.strip() for word in file.readlines()]
@@ -85,14 +90,17 @@ def remove_stopwords(
     else:
         # If a file is specified, write to it
         if file_path:
-            rich.print(f"Custom article: writing to file \"{'output' / file_path}\"")
+            rich.print(f"\nCustom article: writing to file \"{'output' / file_path}\"")
             write_to_file(file_path, FINAL)
 
         # If not, write to default location
         else:
             file_print = Path("custom_article/4. No-stopword-output.txt")
-            rich.print(f"Custom article: writing to file \"{'output' / file_print}\"")
+            rich.print(f"\nCustom article: writing to file \"{'output' / file_print}\"")
             write_to_file(file_print, FINAL)
+
+        # When not in pipeline, print output to screen
+        rich.print(f"\n[bold blue]Output:[/]\n{' '.join(t for t in FINAL)}")
 
 
 if __name__ == '__main__':
