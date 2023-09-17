@@ -1,13 +1,15 @@
+from pathlib import Path
 from re import sub
 from typing import List
 
+import rich
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 
 from file_writing import write_to_file
 
 
-def get_five_articles(input_file: str = "../reuters21578/reut2-000.sgm") -> List[str]:
+def get_five_articles(input_file: str = "../reuters21578/reut2-000.sgm") -> List[Tag]:
     """
     Get the first five articles of the reuters 21578 corpus
 
@@ -52,6 +54,8 @@ def textualize(article: Tag, article_num: int) -> str:
     text = sub(r'\x03|\x02', '', text)
 
     # Write this semi-cleaned text to file
-    write_to_file(article_num, "1. Initial-text", text)
+    file_print = Path(f'output/article{article_num}/1. Initial.txt')
+    rich.print(f"\twriting to file \"{file_print}\"")
+    write_to_file(Path(f"article{article_num}/1. Initial-text.txt"), text)
 
     return text
