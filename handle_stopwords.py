@@ -57,7 +57,7 @@ def remove_stopwords(
         stopwords_file: Annotated[Optional[Path], STOPWORDS_OPTION] = Path("Stopwords-used-for-output.txt"),
         file_path: Annotated[Optional[Path], FILE_OPTION] = None,
         pipeline: Annotated[bool, typer.Option(hidden=True)] = False
-) -> None:
+) -> List[str]:
     """
     As the final step, remove all words from the list of tokens that are stopwords
 
@@ -67,6 +67,11 @@ def remove_stopwords(
     :param pipeline: Whether this command is running as part of the pipeline. Changes file writing
     :param file_path: A file path to save the file to. Must take form of directory/file.txt
     """
+
+    # Ensure list of tokens is not blank
+    if not all(token.strip() for token in tokens if token.strip() == ''):
+        rich.print("\n[red bold]Empty list of tokens is not permitted.")
+        raise typer.Exit(1)
 
     # Ensure the stopwords file actually exists before trying to read from it. If it doesn't, cleanly exit the app
     if not stopwords_file.is_file():
@@ -101,6 +106,8 @@ def remove_stopwords(
 
         # When not in pipeline, print output to screen
         rich.print(f"\n[bold blue]Output:[/]\n{' '.join(t for t in FINAL)}")
+
+    return FINAL
 
 
 if __name__ == '__main__':

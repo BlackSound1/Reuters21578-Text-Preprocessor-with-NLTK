@@ -1,7 +1,9 @@
-.idea
+.idea/
 
-output
+output/
 
-__pycache__
+__pycache__/
+
+.pytest_cache/
 
 P12023.pdf

@@ -60,6 +60,11 @@ def tokenize(
     :return: A list of strings representing the tokens of the article
     """
 
+    # Test to make sure the given token string isn't blank
+    if not text:
+        rich.print(f"\n[red bold]Blank text is not permitted.")
+        raise typer.Exit(1)
+
     # Tokenize the given article text string
     TOKENIZED: List[str] = word_tokenize(text)
 

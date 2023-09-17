@@ -62,6 +62,11 @@ def stem(
     :return: The stemmed version of the list of tokens, stemmed using the Porter stemmer
     """
 
+    # Ensure list of tokens is not blank
+    if not all(token.strip() for token in tokens if token.strip() == ''):
+        rich.print("\n[red bold]Empty list of tokens is not permitted.")
+        raise typer.Exit(1)
+
     # Create a default Porter stemmer
     STEMMER = PorterStemmer()
 
