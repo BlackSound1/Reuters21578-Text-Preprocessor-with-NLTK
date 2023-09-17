@@ -60,6 +60,11 @@ def lowercase(
     :return: The list of tokens, all lowercase
     """
 
+    # Ensure list of tokens is not blank
+    if not all(token.strip() for token in tokens if token.strip() == ''):
+        rich.print("\n[red bold]Empty list of tokens is not permitted.")
+        raise typer.Exit(1)
+
     # Create the lowercase version of the input tokens list
     LOWER_CASED: List[str] = [token.lower() for token in tokens]
 

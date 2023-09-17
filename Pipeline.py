@@ -43,7 +43,7 @@ def pipeline():
         tokenized = tokenize(this_article, i, pipeline=True)
         lower_cased = lowercase(tokenized, i, pipeline=True)
         stemmed = stem(lower_cased, i, pipeline=True)
-        remove_stopwords(stemmed, i, pipeline=True)
+        _ = remove_stopwords(stemmed, i, pipeline=True)
 
 
 if __name__ == '__main__':
