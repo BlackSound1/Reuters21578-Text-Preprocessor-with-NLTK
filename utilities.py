@@ -1,30 +1,57 @@
+from glob import glob
 from pathlib import Path
 from re import sub
 from typing import List
 
 import rich
+from rich.progress import Progress, SpinnerColumn
 from bs4 import BeautifulSoup
-from bs4.element import Tag, NavigableString
+from bs4.element import Tag
 
 from file_writing import write_to_file
 
 
-def get_five_articles(input_file: str = "../reuters21578/reut2-000.sgm") -> List[Tag]:
+def get_all_texts(directory: str = "../reuters21578") -> List[Tag]:
     """
-    Get the first five articles of the reuters 21578 corpus
+    Get all the articles in the corpus and return a list of them
 
-    :param input_file: The file in the corpus containing the first 5 articles
-    :return: A list of the first 5 articles
+    :param directory: Optionally specify where the reuters corpus is
+    :return: A List of articles as `bs4.element.Tag` objects
     """
 
-    # Open the first sgm file
-    with open(input_file, 'r') as file:
-        soup = BeautifulSoup(file, 'html.parser')
+    # Create a list of file names in the required Reuters corpus
+    CORPUS_FILES: List[Path] = [Path(p) for p in glob(f"{directory}/*.sgm")]
 
-    # Get only first 5 articles
-    ARTICLES = soup('text')[:5]
+    rich.print("\nFound files:\n", [f"{f}" for f in CORPUS_FILES])
 
-    return ARTICLES
+    # This will contain all the newspaper articles in the Reuters corpus
+    all_articles: List[Tag] = []
+
+    print()
+
+    # Create a spinner to show that the app isn't frozen
+    progress_bar = Progress(SpinnerColumn(), '[progress.description]{task.description}', SpinnerColumn(), transient=True)
+
+    with progress_bar as progress:
+        task = progress.add_task("Creating list of articles...")
+
+        # Loop through each file
+        for file in CORPUS_FILES:
+
+            # Read the file contents
+            with open(file, 'r') as f:
+                contents = BeautifulSoup(f, features="html.parser")
+
+            # Get all the articles for the file
+            articles = contents('text')
+
+            # Add each article to the list
+            all_articles.extend(articles)
+
+    # Verify number of articles
+    rich.print(f"\nNumber of articles found: [bold green]{len(all_articles)}[/]\n")
+
+    return all_articles
 
 
 def textualize(article: Tag, article_num: int) -> str:
@@ -36,12 +63,8 @@ def textualize(article: Tag, article_num: int) -> str:
     :return: The 'stringified' version of the article
     """
 
-    # Create a list of child elements for this article,
-    # making sure that they're all Tag elements. Important for later
-    CHILDREN = [child for child in article.children if type(child) is not NavigableString]
-
     # Bring all children together into 1 string
-    text = '\n'.join(child.text for child in CHILDREN)
+    text = '\n'.join(child.text for child in article.children)
 
     # Make sure all newline characters have a space after, to prevent future tokenization errors
     # as found in experiment
@@ -53,9 +76,11 @@ def textualize(article: Tag, article_num: int) -> str:
     # Remove certain unicode control characters, as found in experiment
     text = sub(r'\x03|\x02', '', text)
 
-    # Write this semi-cleaned text to file
-    file_print = Path(f'output/article{article_num}/1. Initial.txt')
-    rich.print(f"\twriting to file \"{file_print}\"")
-    write_to_file(Path(f"article{article_num}/1. Initial-text.txt"), text)
+    # Don't print or write to file for any articles beyond 5
+    if article_num <= 5:
+        # Write this semi-cleaned text to file
+        file_print = Path(f'output/article{article_num}/1. Initial.txt')
+        rich.print(f"\twriting to file \"{file_print}\"")
+        write_to_file(Path(f"article{article_num}/1. Initial-text.txt"), text)
 
     return text
