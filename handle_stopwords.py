@@ -85,27 +85,29 @@ def remove_stopwords(
     # Filter out the stopwords
     FINAL: List[str] = [word for word in tokens if word not in STOPWORDS]
 
-    # If this is running as the pipeline, this will be the 5th file written
-    if pipeline:
-        file_print = Path(f"article{article_num}/5. No-stopword-output.txt")
-        rich.print(f"\twriting to file \"{'output' / file_print}\"")
-        write_to_file(file_print, FINAL)
-
-    # If this is not running as the pipeline, this will be the 4th file written
-    else:
-        # If a file is specified, write to it
-        if file_path:
-            rich.print(f"\nCustom article: writing to file \"{'output' / file_path}\"")
-            write_to_file(file_path, FINAL)
-
-        # If not, write to default location
-        else:
-            file_print = Path("custom_article/4. No-stopword-output.txt")
-            rich.print(f"\nCustom article: writing to file \"{'output' / file_print}\"")
+    # Don't print or write to file for any articles beyond 5
+    if article_num <= 5:
+        # If this is running as the pipeline, this will be the 5th file written
+        if pipeline:
+            file_print = Path(f"article{article_num}/5. No-stopword-output.txt")
+            rich.print(f"\twriting to file \"{'output' / file_print}\"")
             write_to_file(file_print, FINAL)
 
-        # When not in pipeline, print output to screen
-        rich.print(f"\n[bold blue]Output:[/]\n{' '.join(t for t in FINAL)}")
+        # If this is not running as the pipeline, this will be the 4th file written
+        else:
+            # If a file is specified, write to it
+            if file_path:
+                rich.print(f"\nCustom article: writing to file \"{'output' / file_path}\"")
+                write_to_file(file_path, FINAL)
+
+            # If not, write to default location
+            else:
+                file_print = Path("custom_article/4. No-stopword-output.txt")
+                rich.print(f"\nCustom article: writing to file \"{'output' / file_print}\"")
+                write_to_file(file_print, FINAL)
+
+            # When not in pipeline, print output to screen
+            rich.print(f"\n[bold blue]Output:[/]\n{' '.join(t for t in FINAL)}")
 
     return FINAL
 

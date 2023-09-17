@@ -73,27 +73,29 @@ def stem(
     # Stem each token in the given list of tokens with the Porter stemmer
     STEMMED: List[str] = [STEMMER.stem(token) for token in tokens]
 
-    # If this is running as the pipeline, this will be the 4th file written
-    if pipeline:
-        file_print = Path(f"article{article_num}/4. Stemmed-output.txt")
-        rich.print(f"\twriting to file \"{'output' / file_print}\"")
-        write_to_file(file_print, STEMMED)
-
-    # If this is not running as the pipeline, this will be the 3rd file written
-    else:
-        # If a file is specified, write to it
-        if file_path:
-            rich.print(f"\nCustom article: writing to file \"{'output' / file_path}\"")
-            write_to_file(file_path, STEMMED)
-
-        # If not, write to default location
-        else:
-            file_print = Path("custom_article/3. Stemmed-output.txt")
-            rich.print(f"\nCustom article: writing to file \"{'output' / file_print}\"")
+    # Don't print or write to file for any articles beyond 5
+    if article_num <= 5:
+        # If this is running as the pipeline, this will be the 4th file written
+        if pipeline:
+            file_print = Path(f"article{article_num}/4. Stemmed-output.txt")
+            rich.print(f"\twriting to file \"{'output' / file_print}\"")
             write_to_file(file_print, STEMMED)
 
-        # When not in pipeline, print output to screen
-        rich.print(f"\n[bold blue]Output:[/]\n{' '.join(t for t in STEMMED)}")
+        # If this is not running as the pipeline, this will be the 3rd file written
+        else:
+            # If a file is specified, write to it
+            if file_path:
+                rich.print(f"\nCustom article: writing to file \"{'output' / file_path}\"")
+                write_to_file(file_path, STEMMED)
+
+            # If not, write to default location
+            else:
+                file_print = Path("custom_article/3. Stemmed-output.txt")
+                rich.print(f"\nCustom article: writing to file \"{'output' / file_print}\"")
+                write_to_file(file_print, STEMMED)
+
+            # When not in pipeline, print output to screen
+            rich.print(f"\n[bold blue]Output:[/]\n{' '.join(t for t in STEMMED)}")
 
     return STEMMED
 
