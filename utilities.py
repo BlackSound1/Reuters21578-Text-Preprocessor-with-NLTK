@@ -86,11 +86,40 @@ def textualize(article: Tag, article_num: int) -> str:
     # as found in experiment
     text = text.replace('\n', '\n ')
 
-    # Remove -- characters from one of the files
-    text = sub(f'--', '', text)
+    # Remove all instances of multiple - in a row
+    text = sub(r'-{2,}', ' ', text)
+
+    # Remove - characters without letters surrounding them. Keeps "once-in-a-lifetime", but not " - "
+    text = sub(r'(?![A-Za-z])-(?![A-Za-z])', ' ', text)
 
     # Remove certain unicode control characters, as found in experiment
     text = sub(r'\x03|\x02', '', text)
+
+    # Remove all punctuation except periods and commas. Handle those separately for money values
+    text = sub(r"[()<>!:;?\"]+", ' ', text)
+
+    # Remove all instances of multiple periods in a row
+    text = sub(r"\.{2,}", ' ', text)
+
+    # Simplify acronyms to their constituent letters. i.e. changes "U.S." to "US"
+    text = sub(r"(?<!\w)([A-Za-z])\.", r'\1', text)
+
+    # Remove all periods that aren't surrounded by a number. i.e. keeps "1.1" and "1."
+    text = sub(r"(?!\d)\.(?!\d)", ' ', text)
+
+    # Remove all commas that aren't surrounded by a number. i.e. keeps "1,000"
+    text = sub(r"(?!\d),(?!\d)", ' ', text)
+
+    # Remove all apostrophes surrounded by letters. In other words, replace all "it's" with "its", etc.
+    text = sub(r"(?<=[A-Za-z])'(?=[A-Za-z])", '', text)
+
+    # Remove all apostrophes remaining. (Needed to do this separately, because we needed to replace contraction
+    # apostrophes with nothing. We will replace all other apostrophes with a space
+    text = sub(r"'", ' ', text)
+
+    # Remove all slashes, but not with numbers. For instance, removes / in "March/April", but not "1998/99".
+    # I will treat numbers with slashes in them as 1 concept
+    text = sub(r"(?!\d)/(?!\d)", ' ', text)
 
     file_print = Path(f'output/article{article_num}/1. Initial.txt')
 
