@@ -1,0 +1,4 @@
+nltk
+pytest
+beautifulsoup4
+typer[all]
