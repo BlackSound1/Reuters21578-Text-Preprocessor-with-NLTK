@@ -1,9 +1,10 @@
 from glob import glob
 from pathlib import Path
 from re import sub
-from typing import List
+from typing import List, Union
 
 import rich
+import typer
 from rich.progress import Progress, SpinnerColumn
 from bs4 import BeautifulSoup
 from bs4.element import Tag
@@ -11,11 +12,12 @@ from bs4.element import Tag
 from file_writing import write_to_file
 
 
-def get_all_texts(directory: str = "../reuters21578") -> List[Tag]:
+def get_texts(directory: str = "../reuters21578", article_count: Union[str, int] = 'all') -> List[Tag]:
     """
-    Get all the articles in the corpus and return a list of them
+    Get any number of articles in the corpus and return a list of them
 
     :param directory: Optionally specify where the reuters corpus is
+    :param article_count: How many articles to retrieve. "all" or a number >= 1
     :return: A List of articles as `bs4.element.Tag` objects
     """
 
@@ -30,10 +32,10 @@ def get_all_texts(directory: str = "../reuters21578") -> List[Tag]:
     print()
 
     # Create a spinner to show that the app isn't frozen
-    progress_bar = Progress(SpinnerColumn(), '[progress.description]{task.description}', SpinnerColumn(), transient=True)
+    spinner = Progress(SpinnerColumn(), '[progress.description]{task.description}', SpinnerColumn(), transient=True)
 
-    with progress_bar as progress:
-        task = progress.add_task("Creating list of articles...")
+    with spinner:
+        _ = spinner.add_task("Creating list of articles...")
 
         # Loop through each file
         for file in CORPUS_FILES:
@@ -48,8 +50,22 @@ def get_all_texts(directory: str = "../reuters21578") -> List[Tag]:
             # Add each article to the list
             all_articles.extend(articles)
 
-    # Verify number of articles
-    rich.print(f"\nNumber of articles found: [bold green]{len(all_articles)}[/]\n")
+            # Stop adding to the list of articles once the desired number of articles is reached
+            if article_count.isnumeric() and len(all_articles) >= int(article_count):
+                break
+
+    # If there is a definite article count provided, ensure article list only contains that many
+    if article_count.isnumeric() and len(all_articles) > int(article_count):
+        all_articles = all_articles[: int(article_count)]
+
+    # Print a message if the user requested more articles than exist
+    if article_count.isnumeric() and int(article_count) > len(all_articles):
+        rich.print(f"You asked for [green bold]{article_count}[/] articles,"
+                   f" but only [green bold]{len(all_articles)}[/] found\n")
+
+    # In all other cases, just print the number of articles
+    else:
+        rich.print(f"Number of articles found: [bold green]{len(all_articles)}[/]\n")
 
     return all_articles
 
@@ -76,11 +92,34 @@ def textualize(article: Tag, article_num: int) -> str:
     # Remove certain unicode control characters, as found in experiment
     text = sub(r'\x03|\x02', '', text)
 
-    # Don't print or write to file for any articles beyond 5
+    file_print = Path(f'output/article{article_num}/1. Initial.txt')
+
+    # Don't print for any articles beyond 5
     if article_num <= 5:
-        # Write this semi-cleaned text to file
-        file_print = Path(f'output/article{article_num}/1. Initial.txt')
         rich.print(f"\twriting to file \"{file_print}\"")
-        write_to_file(Path(f"article{article_num}/1. Initial-text.txt"), text)
+
+    # Write this semi-cleaned text to file
+    write_to_file(Path(f"article{article_num}/1. Initial-text.txt"), text)
 
     return text
+
+
+def count_callback(count: str) -> str:
+    """
+    A callback function for the Pipeline Typer app, to validate user input.
+
+    The value must either be "all" or a number >= 1.
+
+    :param count: The value the user entered for the number of articles they want printed
+    :return: The value, if it was valid
+    """
+
+    if not count.isnumeric() and count.lower() != 'all':
+        rich.print("\n[red bold]Only \"all\" or a number are permitted[/]\n")
+        raise typer.Exit(1)
+
+    if count.isnumeric() and int(count) < 1:
+        rich.print("\n[red bold]Only integers >= 1 are permitted[/]\n")
+        raise typer.Exit(1)
+
+    return count
