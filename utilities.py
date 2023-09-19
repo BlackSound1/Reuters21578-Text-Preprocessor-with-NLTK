@@ -121,7 +121,7 @@ def textualize(article: Tag, article_num: int) -> str:
     # I will treat numbers with slashes in them as 1 concept
     text = sub(r"(?!\d)/(?!\d)", ' ', text)
 
-    file_print = Path(f'output/article{article_num}/1. Initial.txt')
+    file_print = Path(f'output/article{article_num}/1. Initial-text.txt')
 
     # Don't print for any articles beyond 5
     if article_num <= 5:
