@@ -30,7 +30,7 @@ ARTICLE_COUNT_OPTION = typer.Option('--count', '-c', callback=count_callback,
             
              [not dim]
              Can optionally specify how many articles you want processed. The default is 5.
-              Can specify any number >= a or "all" to process all articles in the corpus.
+             Can specify any number >= a or "all" to process all articles in the corpus.
              
              Runs the following functionality:\n
              1. Turn the given Reuters articles into a more standard textual format for easier processing
@@ -45,7 +45,11 @@ ARTICLE_COUNT_OPTION = typer.Option('--count', '-c', callback=count_callback,
              python Pipeline.py --count "all"
              """)
 def pipeline(article_count: Annotated[str, ARTICLE_COUNT_OPTION] = '5') -> None:
-    """Run each step of the pipeline automatically"""
+    """
+    Run each step of the pipeline automatically
+
+    :param article_count: The number of articles requested to process. Can be any number >= 1 or "all". Default is 5
+    """
 
     # Create progress bar
     progress_bar = Progress('[progress.description]{task.description}', BarColumn(),

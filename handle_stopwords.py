@@ -25,7 +25,8 @@ FILE_OPTION = typer.Option("--file", "-f", help="Specify an optional file to sav
 
 
 @remover.command(short_help="Removes stopwords from a given list of tokens.", no_args_is_help=True,
-                 options_metavar='[--help] [--file <dir/file.txt>]', epilog="Thanks for using my stopwords-remover! :boom:",
+                 options_metavar='[--help] [--file <dir/file.txt>] [--stopwords <stopfile.txt>]',
+                 epilog="Thanks for using my stopwords-remover! :boom:",
                  help="""
                  Removes stopwords from a given list of tokens.
                  
