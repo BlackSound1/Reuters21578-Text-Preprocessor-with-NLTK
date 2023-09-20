@@ -19,20 +19,18 @@ app = typer.Typer(name="Reuters Data Pipeline", rich_markup_mode='rich', no_args
                   add_completion=False)
 
 # Define certain app arguments and options. Makes later code cleaner
-ARTICLE_COUNT_OPTION = typer.Option(hidden=True, callback=count_callback,
-                                    prompt="\nPlease select how many articles to process and create output files for "
-                                           "[\"all\" | any number >= 1]",
-                                    help="If --all is not selected, how many articles to process and create output "
-                                         "files for.")
+ARTICLE_COUNT_OPTION = typer.Option('--count', '-c', callback=count_callback,
+                                    help="Specify how many articles to process and create output "
+                                         "files for. Can be any number >= 1 or \"all\"")
 
 
-@app.command(options_metavar='[--help]', epilog="Thanks for using my data pipeline! :boom:",
+@app.command(options_metavar='[--help] [--count <NUMBER> | --count \"all\"]', epilog="Thanks for using my data pipeline! :boom:",
              help="""Process requested number of articles of the required Reuters corpus.
              Run each step of the pipeline automatically.
             
              [not dim]
-             Upon running, a prompt will display asking how many articles in the corpus to process and create output
-             files for. The default is "all". Enter any number >= 1 or "all".
+             Can optionally specify how many articles you want processed. The default is 5.
+              Can specify any number >= a or "all" to process all articles in the corpus.
              
              Runs the following functionality:\n
              1. Turn the given Reuters articles into a more standard textual format for easier processing
@@ -41,10 +39,12 @@ ARTICLE_COUNT_OPTION = typer.Option(hidden=True, callback=count_callback,
              4. Stem each token for each article
              5. Remove stopwords for each article
              
-             [bold yellow]Example Usage[/]:
+             [bold yellow]Example Usages[/]:
              python Pipeline.py
+             python Pipeline.py --count 100
+             python Pipeline.py --count "all"
              """)
-def pipeline(article_count: Annotated[str, ARTICLE_COUNT_OPTION] = 'all') -> None:
+def pipeline(article_count: Annotated[str, ARTICLE_COUNT_OPTION] = '5') -> None:
     """Run each step of the pipeline automatically"""
 
     # Create progress bar
